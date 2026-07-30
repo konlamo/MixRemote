@@ -1,2 +1,9 @@
 extern double volume;
 extern int clicked;
+extern int mode;
+extern bool menu;
+extern int cursorX;
+extern int cursorY;
+extern int cursorR;
+extern int cursorPos;
+extern int menuOptions;

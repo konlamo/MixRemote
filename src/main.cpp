@@ -20,22 +20,24 @@ AiEsp32RotaryEncoder rotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN,
 
 void IRAM_ATTR readEncoderISR() {
   rotaryEncoder.readEncoder_ISR();
+  tft.setTextSize(2);
 }
 
-void drawVolumeBar() {
-  // Clear old bar area first so shrinking the value doesn't leave old pixels
-  tft.fillRect(10, 30, 220, 25, TFT_BLACK);
-  tft.fillRect(10, 30, map(volume, 0, 100, 0, 220), 25, TFT_GREEN);
+void drawMenu() { // mode selector
+  tft.fillRect(0, 0, 30, 300, TFT_BLACK); // clear old cursor area
 
-  tft.setCursor(50, 100);
+  tft.setCursor(30, 75);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.setTextSize(2);
-  tft.print("Value: ");
-  tft.println(volume);
-  tft.setCursor(50, 140);
-  tft.print("clicked: ");
-  tft.println(clicked);
+  tft.println("Profiles");
+  tft.setCursor(30, 150);
+  tft.println("Settings (locked)");
+  tft.setCursor(30, 225);
+  tft.println("Instruments");
+  tft.fillCircle(cursorX, (cursorY * cursorPos) + cursorR - 2, cursorR, TFT_GREEN);
 }
+
+
 
 void setup() {
   Serial.begin(115200);
@@ -51,29 +53,29 @@ void setup() {
   tft.init();
   tft.fillScreen(TFT_BLACK);
 
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setTextSize(2);
-  tft.setCursor(10, 10);
-  tft.println("Volume:");
+  drawMenu();
+  // tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  // tft.setTextSize(2);
+  // tft.setCursor(10, 10);
+  // tft.println("Volume:");
   
 
-  drawVolumeBar(); // draw initial state
+  // drawVolumeBar(); // draw initial state
 
 
 }
 
 void loop() {
-  if (rotaryEncoder.encoderChanged()) {
-    volume = rotaryEncoder.readEncoder();
-    Serial.print("Value: ");
-    Serial.println(volume);
-    drawVolumeBar();
+  if (menu) {
+    if (rotaryEncoder.encoderChanged()) {
+      if (cursorPos == 3) {
+        cursorPos = 1;
+      }
+      else {
+        cursorPos = cursorPos + 1;
+      }
+      drawMenu();
+    }
   }
 
-  if (rotaryEncoder.isEncoderButtonClicked()) {
-    clicked += 1;
-    Serial.print("Clicked: ");
-    Serial.println(clicked);
-    drawVolumeBar();
-  }
 }
